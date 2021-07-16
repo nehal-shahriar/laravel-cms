@@ -6,7 +6,7 @@ use Livewire\Component;
 
 class Pages extends Component
 {
-    public $modalFormVisible=false;
+    public $modalFormVisible=true;
     public $slug;
     public $title;
     public $content;
