@@ -5,46 +5,48 @@
         </x-jet-button>
     </div>
     {{-- Table Data --}}
-    <div class="container" style="padding: 30px 0;">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        All Blogs
-                    </div>
-                    <div class="panel-body">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Link</th>
-                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Content</th>
-                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if($data->count())
+    <div class="flex flex-col">
+        <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Link</th>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Content</th>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @if($data->count())
 
-                                @foreach($data as $item)
-                                <tr>
-                                    <td class="px-6 py-4 text-sm whitespace-no-wrap">{{$item->title}}</th>
-                                    <td class="px-6 py-4 text-sm whitespace-no-wrap">{{$item->slug}}</th>
-                                    <td class="px-6 py-4 text-sm whitespace-no-wrap">{!! $item->content !!}</th>
-                                    <td class="px-6 py-4 text-sm whitespace-no-wrap">
-                                        <x-jet-button wire:click="updateShowModal({{$item->id}})">
-                                            {{ __('Update') }}
+                            @foreach($data as $item)
+                            <tr>
+                                <td class="px-6 py-4 text-sm whitespace-no-wrap">{{$item->title}}</th>
+                                <td class="px-6 py-4 text-sm whitespace-no-wrap">
+                                    <a class="text-indigo-600 hover-text-indigo-900" target="_blank" href="{{URL::to('/'.$item->slug)}}">
+                                        {{$item->slug}}
+                                    </a>
+                                    </th>
+                                <td class="px-6 py-4 text-sm whitespace-no-wrap">{!! $item->content !!}</th>
+                                <td class="px-6 py-4 text-sm whitespace-no-wrap">
+                                    <x-jet-button wire:click="updateShowModal({{$item->id}})">
+                                        {{ __('Update') }}
+                                    </x-jet-button>
+                                    <x-jet-danger-button wire:click="deleteShowModal({{$item->id}})">
+                                        {{ __('Delete') }}
                                         </x-jet-button>
-                                        <x-jet-danger-button wire:click="deleteShowModal({$item->id})">
-                                            {{ __('Delete') }}
-                                        </x-jet-button>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
+                                </td>
+                            </tr>
+                            @endforeach
+                            @else
+                            <tr>
+                                <td class="px-6 py-4 text-sm whitespace-no-wrap" colspan="4">No Results Found</td>
+                            </tr>
                             @endif
-                        </table>
-
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -55,7 +57,7 @@
     {{-- Modal Form --}}
     <x-jet-dialog-modal wire:model="modalFormVisible">
         <x-slot name="title">
-            {{ __('Save Page') }}
+            {{ __('Save Page') }} {{$modelId}}
         </x-slot>
 
         <x-slot name="content">
@@ -100,6 +102,27 @@
                 {{ __('Save') }}
             </x-jet-button>
             @endif
+        </x-slot>
+    </x-jet-dialog-modal>
+
+    {{-- Delete Modal --}}
+    <x-jet-dialog-modal wire:model="modalConfirmDeleteVisible">
+        <x-slot name="title">
+            {{ __('Delete Blog Page') }} {{$modelId}}
+        </x-slot>
+
+        <x-slot name="content">
+            {{ __('Are you sure you want to delete this page? Once the page is deleted, all of its resources and data will be permanently deleted.') }}
+        </x-slot>
+
+        <x-slot name="footer">
+            <x-jet-secondary-button wire:click="$toggle('modalConfirmDeleteVisible')" wire:loading.attr="disabled">
+                {{ __('Nevermind') }}
+            </x-jet-secondary-button>
+
+            <x-jet-danger-button class="ml-2" wire:click="delete" wire:loading.attr="disabled">
+                {{ __('Delete') }}
+            </x-jet-danger-button>
         </x-slot>
     </x-jet-dialog-modal>
 </div>

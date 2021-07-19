@@ -10,7 +10,8 @@ use Livewire\WithPagination;
 class Pages extends Component
 {
     use WithPagination;
-    public $modalFormVisible;
+    public $modalFormVisible=false;
+    public $modalConfirmDeleteVisible=false;
     public $modelId;
     public $slug;
     public $title;
@@ -19,7 +20,7 @@ class Pages extends Component
     public function rules(){
         return [
             'title'=>'required',
-            'slug'=>['required', Rule::unique('pages','slug')],
+            'slug'=>['required', Rule::unique('pages','slug')->ignore($this->modelId)],
             'content'=>'required',
         ];
     }
@@ -47,6 +48,12 @@ class Pages extends Component
         $this->modalFormVisible=false;
         $this->resetVars();
     }
+
+    public function delete(){
+        Page::destroy($this->modelId);
+        $this->modalConfirmDeleteVisible=false;
+        $this->resetPage();
+    }
     /**
      * show the form modal
      * of the create function
@@ -66,6 +73,11 @@ class Pages extends Component
         $this->modalFormVisible=true;
         $this->loadModel();
     }
+
+    public function deleteShowModal($id){
+        $this->modelId=$id;
+        $this->modalConfirmDeleteVisible=true;
+    }
      
     public function loadModel(){
         $data=Page::find($this->modelId);
@@ -73,6 +85,7 @@ class Pages extends Component
         $this->slug=$data->slug;
         $this->content=$data->content;
     }
+
     public function modelData(){
         return [
             'title'=>$this->title,
