@@ -16,6 +16,8 @@ class Pages extends Component
     public $slug;
     public $title;
     public $content;
+    public $isSetToDefaultHomePage;
+    public $isSetToDefaultNotFoundPage;
 
     public function rules(){
         return [
@@ -31,9 +33,11 @@ class Pages extends Component
 
     public function create(){
         $this->validate();
+        $this->unassignDefaultHomepage();
+        $this->unassignDefaultNotFoundpage();
         Page::create($this->modelData());
         $this->modalFormVisible=false;
-        $this->resetVars();
+        $this->reset();
     }
 
     
@@ -44,9 +48,11 @@ class Pages extends Component
     
     public function update(){
         $this->validate();
+        $this->unassignDefaultHomepage();
+        $this->unassignDefaultNotFoundpage();
         Page::find($this->modelId)->update($this->modelData());
         $this->modalFormVisible=false;
-        $this->resetVars();
+        $this->reset();
     }
 
     public function delete(){
@@ -62,13 +68,13 @@ class Pages extends Component
      */
     public function createShowModal(){
         $this->resetValidation();
-        $this->resetVars();
+        $this->reset();
         $this->modalFormVisible=true;
     }
 
     public function updateShowModal($id){
         $this->resetValidation();
-        $this->resetVars();
+        $this->reset();
         $this->modelId=$id;
         $this->modalFormVisible=true;
         $this->loadModel();
@@ -84,6 +90,28 @@ class Pages extends Component
         $this->title=$data->title;
         $this->slug=$data->slug;
         $this->content=$data->content;
+        $this->isSetToDefaultHomePage=!$data->is_default_home ? null:true;
+        $this->isSetToDefaultNotFoundPage=!$data->is_default_not_found ? null:true;
+    }
+
+    public function updatedIsSetToDefaultHomePage(){
+        $this->isSetToDefaultNotFoundPage=null;
+    }
+
+    public function updatedIsSetToDefaultNotFoundPage(){
+        $this->isSetToDefaultHomePage=null;
+    }
+
+    private function unassignDefaultHomepage(){
+        if($this->isSetToDefaultHomePage !=null){
+            Page::where('is_default_home', true)->update(['is_default_home'=>false]);
+        }
+    }
+
+    private function unassignDefaultNotFoundpage(){
+        if($this->isSetToDefaultNotFoundPage !=null){
+            Page::where('is_default_not_found', true)->update(['is_default_not_found'=>false]);
+        }
     }
 
     public function modelData(){
@@ -91,18 +119,15 @@ class Pages extends Component
             'title'=>$this->title,
             'slug'=>$this->slug,
             'content'=>$this->content,
+            'is_default_home'=>$this->isSetToDefaultHomePage,
+            'is_default_not_found'=>$this->isSetToDefaultNotFoundPage,
         ];
     }
 
-    public function resetVars(){
-        $this->modelId=null;
-        $this->title=null;
-        $this->slug=null;
-        $this->content=null;
-    }
+    
     public function render()
     {
-        $data=Page::paginate(2);
+        $data=Page::paginate(5);
         return view('livewire.pages', ['data'=>$data]);
     }
 }
