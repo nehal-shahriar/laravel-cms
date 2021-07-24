@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Livewire\Blogs;
 use App\Http\Livewire\Frontpage;
 use Illuminate\Support\Facades\Route;
 
@@ -31,7 +32,12 @@ Route::group(['middleware' => [
     Route::get('/pages', function () {
         return view('admin.pages');
     })->name('pages');
+
+    Route::get('/bloglists', function () {
+        return view('admin.bloglists');
+    })->name('bloglists');
+
 });
 
-Route::get('/{urlslug}',Frontpage::class);
-Route::get('/',Frontpage::class);
+Route::get('/{urlslug}',Blogs::class);
+Route::get('/',Blogs::class);
